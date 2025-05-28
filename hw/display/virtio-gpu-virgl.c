@@ -1030,6 +1030,12 @@ static int virgl_make_context_current(void *opaque, int scanout_idx,
                                    qctx);
 }
 
+static int virgl_get_server_fd(void *opaque, uint32_t version)
+{ 
+    VirtIOGPU *g = opaque;
+    return qemu_chr_fe_get_msgfd(&g->parent_obj.conf.dev);
+}
+
 static struct virgl_renderer_callbacks virtio_gpu_3d_cbs = {
     .version             = 1,
     .write_fence         = virgl_write_fence,
@@ -1114,6 +1120,7 @@ int virtio_gpu_virgl_init(VirtIOGPU *g)
     }
 
     if (g->parent_obj.conf.dev.chr) {
+        virtio_gpu_3d_cbs.get_server_fd = virgl_get_server_fd;
     }
 #endif
 
